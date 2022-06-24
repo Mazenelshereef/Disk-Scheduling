@@ -162,6 +162,97 @@ pair<vector<int>, int> cscan_algorithm(vector<int> queue, int initialCylinder)
     return pair<vector<int>, int>(sequence, totalMovement);
 }
 
+pair<vector<int>, int> look_algorithm(vector<int> queue, int initialCylinder)
+{
+    vector<int> sequence;
+    sequence.push_back(initialCylinder);
+    int totalMovement = 0, currentHead = initialCylinder, minimum = 200;
+
+
+    for (int i = 0; i < queue.size(); i++)
+    {
+        if (queue[i] < minimum)
+        {
+            minimum = queue[i];
+        }
+    }
+    while (currentHead != minimum)
+    {
+        int max = -1, index = -1;
+        for (int i = 0; i < queue.size(); i++)
+        {
+            if (queue[i] > max && queue[i] <= currentHead)
+            {
+                max = queue[i];
+                index = i;
+            }
+        }
+        if (max >= 0)
+        {
+            sequence.push_back(max);
+            totalMovement += abs(currentHead - max);
+            currentHead = max;
+            if (index >= 0)
+                queue.erase(queue.begin() + index);
+        }
+    }
+    while (!queue.empty())
+    {
+        int min = 199, index = -1;
+        for (int i = 0; i < queue.size(); i++)
+        {
+            if (queue[i] < min)
+            {
+                min = queue[i];
+                index = i;
+            }
+        }
+        sequence.push_back(min);
+        totalMovement += abs(min - currentHead);
+        currentHead = min;
+        if (index >= 0)
+            queue.erase(queue.begin() + index);
+    }
+    return pair<vector<int>, int>(sequence, totalMovement);
+}
+
+pair<vector<int>, int> clook_algorithm(vector<int> queue, int initialCylinder)
+{
+    vector<int> sequence;
+    int indx, endd = 199, totalMovement = 0;
+    sort(queue.begin(), queue.end());
+    for (int i = 0; i < queue.size(); i++) {
+        if (queue[i] > initialCylinder) {
+            indx = i;
+            break;
+        }
+    }
+    sequence.push_back(initialCylinder);
+    int last = initialCylinder;
+    while (queue.size() != 0) {
+        sequence.push_back(queue[indx]);
+        totalMovement += abs(queue[indx] - last);
+        last = queue[indx];
+        queue.erase(queue.begin() + indx);
+        if (indx == queue.size())indx = 0;
+    }
+    return pair<vector<int>, int>(sequence, totalMovement);
+}
+
+pair<vector<int>, int> optimized_algorithem(vector<int> queue)
+{
+    int initHeadPos = 0, totalMovement = 0, cHeadPos = 0; vector<int> seq;
+    seq.push_back(initHeadPos);
+    sort(queue.begin(), queue.end());
+    for (int i = 0; i < queue.size(); i++)
+    {
+        totalMovement += abs(queue[i] - cHeadPos);
+        cHeadPos = queue[i];
+        seq.push_back(cHeadPos);
+    }
+    return pair<vector<int>, int>(seq, totalMovement);
+}
+
 int main()
 {
     int n, initialCylinder, chosenAlgo;
@@ -203,7 +294,15 @@ int main()
         case 4:
             result = cscan_algorithm(queue, initialCylinder);
             break;
-
+        case 5:
+            result = look_algorithm(queue, initialCylinder);
+            break;
+        case 6:
+            result = clook_algorithm(queue, initialCylinder);
+            break;
+        case 7:
+            result = optimized_algorithem(queue);
+            break;
         default:
             return 0;
         }
