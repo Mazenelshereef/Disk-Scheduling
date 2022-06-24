@@ -95,6 +95,72 @@ pair<vector<int>, int> SSTF_algorithm(vector<int> queue, int initialCylinder)
     return pair<vector<int>, int>(seq, totalMovement);
 }
 
+pair<vector<int>, int> scan_algorithm(vector<int> queue, int initialCylinder)
+{
+    vector<int> sequence;
+    sequence.push_back(initialCylinder);
+    int totalMovement = 0, currentHead = initialCylinder;
+    while (currentHead != 0)
+    {
+        int max = 0, index = -1;
+        for (int i = 0; i < queue.size(); i++)
+        {
+            if (queue[i] > max && queue[i] <= currentHead)
+            {
+                max = queue[i];
+                index = i;
+            }
+        }
+        sequence.push_back(max);
+        totalMovement += abs(currentHead - max);
+        currentHead = max;
+        if (index >= 0)
+            queue.erase(queue.begin() + index);
+    }
+    while (!queue.empty())
+    {
+        int min = 199, index = -1;
+        for (int i = 0; i < queue.size(); i++)
+        {
+            if (queue[i] < min)
+            {
+                min = queue[i];
+                index = i;
+            }
+        }
+        sequence.push_back(min);
+        totalMovement += abs(min - currentHead);
+        currentHead = min;
+        if (index >= 0)
+            queue.erase(queue.begin() + index);
+    }
+    return pair<vector<int>, int>(sequence, totalMovement);
+}
+
+pair<vector<int>, int> cscan_algorithm(vector<int> queue, int initialCylinder)
+{
+    vector<int> sequence;
+    int indx, start = 0, endd = 199, totalMovement = 0;
+    queue.push_back(start); queue.push_back(endd);
+    sort(queue.begin(), queue.end());
+    for (int i = 0; i < queue.size(); i++) {
+        if (queue[i] > initialCylinder) {
+            indx = i - 1;
+            break;
+        }
+    }
+    sequence.push_back(initialCylinder);
+    int last = initialCylinder;
+    while (queue.size() != 0) {
+        sequence.push_back(queue[indx]);
+        totalMovement += abs(queue[indx] - last);
+        last = queue[indx];
+        queue.erase(queue.begin() + indx);
+        if (indx == 0)indx = queue.size() - 1;
+        else indx--;
+    }
+    return pair<vector<int>, int>(sequence, totalMovement);
+}
 
 int main()
 {
@@ -131,7 +197,13 @@ int main()
         case 2:
             result = SSTF_algorithm(queue, initialCylinder);
             break;
-      
+        case 3:
+            result = scan_algorithm(queue, initialCylinder);
+            break;
+        case 4:
+            result = cscan_algorithm(queue, initialCylinder);
+            break;
+
         default:
             return 0;
         }
